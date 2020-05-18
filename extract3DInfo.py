@@ -1,15 +1,24 @@
 #!/usr/local/bin/python3
 import re
-import sys
+import argparse
+from pathlib import Path
 
 mtlData = ''
 objData = ''
-mtlPwd = sys.argv[1]
-objPwd = sys.argv[2]
+# mtlPwd = '/Users/zhengzhi/Desktop/3Dinfo/1.mtl'
+# objPwd = '/Users/zhengzhi/Desktop/3Dinfo/1.obj'
 
-# mtlPwd = '/Users/zhengzhi/Desktop/B2.mtl'
-# objPwd = '/Users/zhengzhi/Desktop/B2.obj'
+parser = argparse.ArgumentParser()
+parser.add_argument("mtl_path", help="your .mtl file's path")
+parser.add_argument("obj_path", help="your .obj file's path")
+args = parser.parse_args()
+# 把命令行入参数传入
+mtlPwd = args.mtl_path
+objPwd = args.obj_path
 
+
+# 获取文件名
+filename = Path(mtlPwd).stem
 
 with open(objPwd, 'r', encoding='ISO-8859-1') as f:
     objData = f.read()
@@ -25,10 +34,12 @@ with open(mtlPwd, 'r', encoding='ISO-8859-1') as f:
 def getNumCoord(data):
     initCoord = re.findall('v (.*)\n', data)
     outNumCroodtList = []
+    print('\ninit coord: \n', initCoord)
     for num in range(len(initCoord)):
-        outNumCroodtList.append(f'{num+1} 'f'    {initCoord[num]}')
-    # print('\ninit coord: \n', outNumCroodtList)
-    # print('\n------All num length: ', len(outNumCroodtList))
+        initCoord[num] = initCoord[num].replace(" ", ",")
+        outNumCroodtList.append(f'{num+1},'f'{initCoord[num]}')
+    print('\noutNumCroodtList: \n', outNumCroodtList)
+    print('\n------All num length: ', len(outNumCroodtList))
     return outNumCroodtList
 
 
@@ -44,18 +55,19 @@ def getRBG(data, inRBGModeList):
     RBGKdList = []
     outRBGKdList = []
     for eachRBG in inRBGModeList:
-        eachRBGKd = re.findall(f'newmtl {eachRBG}\nKd(.*?)\n', data)
+        eachRBGKd = re.findall(f'newmtl {eachRBG}\nKd (.*?)\n', data)
         # 前后加空格方便正则匹配
-        RBGKdList.append(f'     {eachRBGKd[0]} ')
+        RBGKdList.append(f',{eachRBGKd[0]}')
     print('\n------different mode RBG: \n', RBGKdList)
     for i in range(0, len(RBGKdList)):
+        # 把每个RBGkd中的RBG分离出
         everyRBGModeKd = re.findall(r'(-?\d+\.?\d*e?-?\d*?)', RBGKdList[i])
         # print('\n------everyRBGModeKd: \n ', everyRBGModeKd)
         for j in range(0, 3):
             everyRBGModeKd[j] = str(round(float(everyRBGModeKd[j])*255))
         # print('\n---*255----: \n', everyRBGModeKd)
-        outRBGKdList.append(f'      {everyRBGModeKd[0]} {everyRBGModeKd[1]} {everyRBGModeKd[2]} ')
-    print(outRBGKdList)
+        outRBGKdList.append(f', {everyRBGModeKd[0]},{everyRBGModeKd[1]},{everyRBGModeKd[2]}')
+    print('\n-----outRBGKdList: \n',outRBGKdList)
     return outRBGKdList
 
 
@@ -124,18 +136,19 @@ def getOutList(inNumCoordList, inRBGModeKdList, inLastSeqModeNumList, inOtherMod
         outList.append(inNumCoordList[i]+inRBGModeKdList[0])
         # 替换obj文件中靠后点的RBG，如果有则直接进入下次循环
         if str(i+1) in inLastSeqModeNumList:
-            outList[i] = re.sub('      (.*) ', inRBGModeKdList[RBGModeNum-1], outList[i])
+            outList[i] = re.sub(', (.*)', inRBGModeKdList[RBGModeNum-1], outList[i])
             continue
         # 替换中间点的RBG
         for j in range(0, RBGModeNum-2):
             if str(i+1) in inOtherModeNumList[j]:
-                outList[i] = re.sub('      (.*) ', inRBGModeKdList[j+1], outList[i])                
+                outList[i] = re.sub(', (.*)', inRBGModeKdList[j+1], outList[i])
+    print('\n#########: \n', outList)             
     return outList
 
 
 def outputTxt(inList):
-    with open('./output.txt', 'w+') as f:
-        f.write('NUM------------Crood------------RBG\n\n')
+    with open(f'./{filename}.csv', 'w+') as f:
+        f.write('NUM,Coordinate[x],Coordinate[y],Coordinate[z],R,B,G\n')
         for element in inList:
             f.write(f'{element}\n')
         f.close
