@@ -34,11 +34,11 @@ with open(mtlPwd, 'r', encoding='ISO-8859-1') as f:
 def getNumCoord(data):
     initCoord = re.findall('v (.*)\n', data)
     outNumCroodtList = []
-    print('\ninit coord: \n', initCoord)
+    print('\n------init coord: \n', initCoord)
     for num in range(len(initCoord)):
         initCoord[num] = initCoord[num].replace(" ", ",")
         outNumCroodtList.append(f'{num+1},'f'{initCoord[num]}')
-    print('\noutNumCroodtList: \n', outNumCroodtList)
+    print('\n------outNumCroodtList: \n', outNumCroodtList)
     print('\n------All num length: ', len(outNumCroodtList))
     return outNumCroodtList
 
