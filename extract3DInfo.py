@@ -67,7 +67,7 @@ def getRBG(data, inRBGModeList):
             everyRBGModeKd[j] = str(round(float(everyRBGModeKd[j])*255))
         # print('\n---*255----: \n', everyRBGModeKd)
         outRBGKdList.append(f', {everyRBGModeKd[0]},{everyRBGModeKd[1]},{everyRBGModeKd[2]}')
-    print('\n-----outRBGKdList: \n',outRBGKdList)
+    print('\n-----outRBGKdList: \n', outRBGKdList)
     return outRBGKdList
 
 
