@@ -8,9 +8,9 @@ objData = ''
 # mtlPwd = '/Users/zhengzhi/Desktop/3Dinfo/1.mtl'
 # objPwd = '/Users/zhengzhi/Desktop/3Dinfo/1.obj'
 
-parser = argparse.ArgumentParser()
-parser.add_argument("mtl_path", help="your .mtl file's path")
-parser.add_argument("obj_path", help="your .obj file's path")
+parser = argparse.ArgumentParser(description="This is a description of %(prog)s", epilog="any problem please connect with zhengzhi@zerozero.cn")
+parser.add_argument("-m", "--mtl_path", help="your .mtl file's path", required="true")
+parser.add_argument("-o", "--obj_path", help="your .obj file's path", required="true")
 args = parser.parse_args()
 # 把命令行入参数传入
 mtlPwd = args.mtl_path
